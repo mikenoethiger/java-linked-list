@@ -14,7 +14,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
     public static class ListItem<T> {
 
-        private final T m_data;
+        private T m_data; // @marco removed "final" für method set()
         private ListItem<T> m_next;
         private ListItem<T> m_previous;
 
@@ -129,7 +129,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
     @Override
     public void set(ListItem item, T data) {
-        // TODO @marco
+        item.m_data = data;
     }
 
     @Override
@@ -175,7 +175,16 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
     @Override
     public void rotate(ListItem item) {
-        // TODO @marco
+        // @marco: check if item is really in list?
+        if(item != m_head)
+        {
+            m_head.m_previous = m_tail;
+            m_tail.m_next = m_head;
+            m_head = item;
+            m_tail = item.m_previous;
+            m_head.m_previous = null;
+            m_tail.m_next = null;
+        }
     }
 
     @Override
@@ -255,18 +264,44 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
     }
 
     private void linkInFront(ListItem item) {
+        unlink(item);
 
+        item.m_next = m_head;
+        item.m_next.m_previous = item;
+        m_head = item;
     }
 
     private void linkInBack(ListItem item) {
+        unlink(item);
 
+        item.m_previous = m_tail;
+        item.m_previous.m_next = item;
+        m_tail = item;
     }
 
     private void linkInAfter(ListItem prev, ListItem item) {
+        unlink(item);
 
+        item.m_previous = prev;
+        item.m_next = prev.m_next;
+
+        item.m_previous.m_next = item;
+        item.m_next.m_previous = item;
     }
 
     private void unlink(ListItem item) {
+        if(item.m_previous != null) {
+            if(item.m_next != null) item.m_previous.m_next = item.m_next;
+            else item.m_previous.m_next = null;
 
+            item.m_previous = null;
+        }
+
+        if(item.m_next != null) {
+            if(item.m_previous != null) item.m_next.m_previous = item.m_previous;
+            else item.m_next.m_previous = null;
+
+            item.m_next = null;
+        }
     }
 }
