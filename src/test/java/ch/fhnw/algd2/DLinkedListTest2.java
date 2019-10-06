@@ -19,6 +19,7 @@ public class DLinkedListTest2 {
 			list1.add(2*i);
 			list2.add(2*i);
 		}
+		int x = 1;
 	}
 
 	@Test
@@ -41,7 +42,9 @@ public class DLinkedListTest2 {
 
 	@Test
 	public void testCyclicDelete() {
-		for(ListItem it=list1.next(list1.head()); it != null; it = list1.cyclicDelete(it, true));
+		for(ListItem it=list1.next(list1.head()); it != null; it = list1.cyclicDelete(it, true)) {
+			int x = 0; 
+		}
 		assertTrue(list1.isEmpty());
 		
 		for(ListItem it=list2.next(list2.head()); it != null; it = list2.cyclicDelete(it, true));
@@ -274,6 +277,7 @@ public class DLinkedListTest2 {
 	public void testAddListBeforeListItem() {
 		final int s = list1.size() + list2.size();
 		
+		// expect addBefore(null) to insert at end
 		ListItem tail = list1.tail();
 		list1.addBefore(null, list2);
 		assertEquals(list1.size(), s);

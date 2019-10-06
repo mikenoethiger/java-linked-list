@@ -14,45 +14,45 @@ public interface IList<E> extends List<E> {
 	 * @param item
 	 * @return true if item is a member of this list
 	 */
-	boolean checkMembership(ListItem item);
+	boolean checkMembership(ListItem<E> item);
 	
 	/**
 	 * @return the first item or null if the list is empty
 	 */
-	ListItem head();
+	ListItem<E> head();
 	
 	/**
 	 * @return the last item or null if the list is empty
 	 */
-	ListItem tail();
+	ListItem<E> tail();
 	
 	/**
 	 * Precondition: item is in this list
 	 * @param item
 	 * @return the successor of item or null if item is the last
 	 */
-	ListItem next(ListItem item);
+	ListItem<E> next(ListItem<E> item);
 	
 	/**
 	 * Precondition: item is in this list
 	 * @param item
 	 * @return the predecessor of item or null if item is the first
 	 */
-	ListItem previous(ListItem item);
+	ListItem<E> previous(ListItem<E> item);
 	
 	/**
 	 * Precondition: item is in this list
 	 * @param item
 	 * @return the cyclic successor of item, if item is the last then the first
 	 */
-	ListItem cyclicNext(ListItem item);
+	ListItem<E> cyclicNext(ListItem<E> item);
 	
 	/**
 	 * Precondition: item is in this list
 	 * @param item
 	 * @return the cyclic predecessor of item, if item is the first then the last
 	 */
-	ListItem cyclicPrevious(ListItem item);
+	ListItem<E> cyclicPrevious(ListItem<E> item);
 	
 	/**
 	 * Deletes item while iterating.
@@ -63,7 +63,7 @@ public interface IList<E> extends List<E> {
 	 * @param next controls direction of iteration
 	 * @return successor of item while iterating or null
 	 */
-	ListItem delete(ListItem item, boolean next);
+	ListItem<E> delete(ListItem<E> item, boolean next);
 	
 	/**
 	 * Deletes item while iterating.
@@ -74,14 +74,14 @@ public interface IList<E> extends List<E> {
 	 * @param next controls direction of cyclic iteration
 	 * @return successor of item while cyclic iterating or null if list becomes empty
 	 */
-	ListItem cyclicDelete(ListItem item, boolean next);
+	ListItem<E> cyclicDelete(ListItem<E> item, boolean next);
 	
 	/**
 	 * Precondition: item is in this list
 	 * @param item
 	 * @return the contents of item
 	 */
-	E get(ListItem item);
+	E get(ListItem<E> item);
 	
 	/**
 	 * Makes data the contents of item.
@@ -89,7 +89,7 @@ public interface IList<E> extends List<E> {
 	 * @param item
 	 * @param data
 	 */
-	void set(ListItem item, E data);
+	void set(ListItem<E> item, E data);
 	
 	/**
 	 * Deletes the item and returns its contents.
@@ -97,21 +97,21 @@ public interface IList<E> extends List<E> {
 	 * @param item
 	 * @return contents of the removed item
 	 */
-	E remove(ListItem item);
+	E remove(ListItem<E> item);
 	
 	/**
 	 * Adds a new list item with given data at the front and returns it.
 	 * @param data
 	 * @return new item
 	 */
-	ListItem addHead(E data);
+	ListItem<E> addHead(E data);
 	
 	/**
 	 * Appends a new list item with given data and returns it.
 	 * @param data
 	 * @return appended item
 	 */
-	ListItem addTail(E data);
+	ListItem<E> addTail(E data);
 
 	/**
 	 * Inserts a new list item with given data after item and returns the new item.
@@ -120,7 +120,7 @@ public interface IList<E> extends List<E> {
 	 * @param data
 	 * @return inserted item
 	 */
-	ListItem addAfter(ListItem item, E data);
+	ListItem<E> addAfter(ListItem<E> item, E data);
 	
 	/**
 	 * Inserts a new list item with given data before item and returns the new item.
@@ -129,28 +129,28 @@ public interface IList<E> extends List<E> {
 	 * @param data
 	 * @return inserted item
 	 */
-	ListItem addBefore(ListItem item, E data);
+	ListItem<E> addBefore(ListItem<E> item, E data);
 	
 	/**
 	 * Moves item to front. item becomes new head.
 	 * Precondition: item is in this list
 	 * @param item
 	 */
-	void moveToHead(ListItem item);
+	void moveToHead(ListItem<E> item);
 	
 	/**
 	 * Moves item to back. item becomes new tail.
 	 * Precondition: item is in this list
 	 * @param item
 	 */
-	void moveToTail(ListItem item);
+	void moveToTail(ListItem<E> item);
 	
 	/**
 	 * Rotates the list until item is the new head in O(1) time.
 	 * Precondition: item is in this list
 	 * @param item
 	 */
-	void rotate(ListItem item);
+	void rotate(ListItem<E> item);
 
 	/**
 	 * Swaps two list items. The content of the list items doesn't change.
@@ -158,7 +158,7 @@ public interface IList<E> extends List<E> {
 	 * @param item1
 	 * @param item2
 	 */
-	void swap(ListItem item1, ListItem item2);
+	void swap(ListItem<E> item1, ListItem<E> item2);
 	
 	/**
 	 * Reverses the order of all list items. Head becomes tail and vice versa.
@@ -174,7 +174,7 @@ public interface IList<E> extends List<E> {
 	 * Precondition: item is in this list or null and list != null and list != this
 	 * @param item can be null
 	 */
-	void addAfter(ListItem item, List<E> list);
+	void addAfter(ListItem<E> item, List<E> list);
 
 	/**
 	 * Inserts list before item in O(n) time, where n is the size of list.
@@ -182,7 +182,7 @@ public interface IList<E> extends List<E> {
 	 * Precondition: item is in this list or null and list != null and list != this
 	 * @param item can be null
 	 */
-	void addBefore(ListItem item, List<E> list);
+	void addBefore(ListItem<E> item, List<E> list);
 
 	/**
 	 * Appends (after = true) or prepends (after = false) list to this list in O(n) time 
@@ -201,7 +201,7 @@ public interface IList<E> extends List<E> {
 	 * @param endExclusive the item cyclic succeeding the last item to be removed
 	 * @return list with removed items with head = startInclusive and tail = last removed
 	 */
-	IList<E> remove(ListItem startInclusive, ListItem endExclusive);
+	IList<E> remove(ListItem<E> startInclusive, ListItem<E> endExclusive);
 	
 	/**
 	 * @return a list-iterator of the elements in this list (in proper sequence).

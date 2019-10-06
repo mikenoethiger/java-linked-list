@@ -14,5 +14,5 @@ public interface IListIterator<E> extends ListIterator<E> {
 	 * Precondition: next() or previous() has been called
 	 * @return the corresponding list item of the last returned contents
 	 */
-	public ListItem getVisited();
+	public ListItem<E> getVisited();
 }
