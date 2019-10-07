@@ -20,13 +20,15 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	private int m_size;
 
 	public static class ListItem<T> {
-
+		private DLinkedList<T> m_owner;
 		private T m_data; // @marco removed "final" f√ºr method set()
 		private ListItem<T> m_next;
 		private ListItem<T> m_previous;
 
-		private ListItem(T data) {
+		private ListItem(DLinkedList<T> owner, T data) {
+			assert owner != null;
 			this.m_data = data;
+			this.m_owner = owner;
 		}
 
 		public T getData() {
@@ -38,14 +40,10 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	}
 
 	@Override
-	public <T1> T1[] toArray(T1[] a) {
-		return super.toArray(a);
-	}
-
-	@Override
 	public boolean addAll(Collection<? extends T> c) {
-		if (c == null || c.isEmpty())
+		if (c == null || c.isEmpty()) {
 			return false;
+		}
 		for (T data : c) {
 			add(data);
 		}
@@ -55,17 +53,9 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public T get(ListItem<T> item) {
-		// TODO find solution for type check on item
-		if (item == null || !checkMembership(item)) {
-			throw new NoSuchElementException();
-		}
-
-		return (T) item.m_data;
-	}
-
-	@Override
-	public T get(int index) {
-		throw new UnsupportedOperationException("cannot be implemented efficiently");
+		assert item != null;
+		checkMembershipOrThrow(item);
+		return item.m_data;
 	}
 
 	@Override
@@ -78,6 +68,9 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 		// TODO in order to check the membership of an item, the item needs a reference
 		// to the LinkedList it belongs to. This reference has to be removed (or set to
 		// null), as the item is deleted from the list.
+		if (item.m_owner != this) {
+			return false;
+		}
 		return true;
 	}
 
@@ -117,7 +110,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public boolean add(T e) {
-		linkInBack(new ListItem<T>(e));
+		linkInBack(new ListItem<T>(this, e));
 		m_size++;
 		modCount++;
 		return true;
@@ -125,25 +118,22 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public ListItem<T> next(ListItem<T> item) {
-		if (!checkMembership(item)) {
-			throw new NoSuchElementException(item.toString());
-		}
+		assert item != null;
+		checkMembershipOrThrow(item);
 		return item.m_next;
 	}
 
 	@Override
 	public ListItem<T> previous(ListItem<T> item) {
-		if (!checkMembership(item)) {
-			throw new NoSuchElementException(item.toString());
-		}
+		assert item != null;
+		checkMembershipOrThrow(item);
 		return item.m_previous;
 	}
 
 	@Override
 	public ListItem<T> cyclicNext(ListItem<T> item) {
-		if (!checkMembership(item)) {
-			throw new NoSuchElementException(item.toString());
-		}
+		assert item != null;
+		checkMembershipOrThrow(item);
 		if (item == m_tail) {
 			return m_head;
 		}
@@ -152,9 +142,8 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public ListItem<T> cyclicPrevious(ListItem<T> item) {
-		if (!checkMembership(item)) {
-			throw new NoSuchElementException(item.toString());
-		}
+		assert item != null;
+		checkMembershipOrThrow(item);
 		if (item == m_head) {
 			return m_tail;
 		}
@@ -163,6 +152,11 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public ListItem<T> delete(ListItem<T> item, boolean next) {
+		return deleteImpl(item, next);
+	}
+
+	private ListItem<T> deleteImpl(ListItem<T> item, boolean next) {
+		assert item != null;
 		checkMembershipOrThrow(item);
 		ListItem<T> returnValue = null;
 		if (next) {
@@ -188,6 +182,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public void set(ListItem<T> item, T data) {
+		assert item != null;
 		checkMembershipOrThrow(item); // TODO discuss: throw exception ok?
 		// no modCount++ seems to be correct
 		item.m_data = data;
@@ -195,13 +190,12 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public T remove(ListItem<T> item) {
-		if (checkMembership(item)) {
-			unlink(item);
-			m_size--;
-			modCount++;
-			return item.m_data;
-		}
-		return null;
+		assert item != null;
+		checkMembershipOrThrow(item);
+		unlink(item);
+		m_size--;
+		modCount++;
+		return item.m_data;
 	}
 
 	@Override
@@ -230,6 +224,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public void moveToHead(ListItem<T> item) {
+		assert item != null;
 		checkMembershipOrThrow(item);
 		unlink(item);
 		linkInFront(item);
@@ -238,6 +233,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public void moveToTail(ListItem<T> item) {
+		assert item != null;
 		checkMembershipOrThrow(item);
 		unlink(item);
 		linkInBack(item);
@@ -246,7 +242,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public void rotate(ListItem<T> item) {
-		// @marco: check if item is really in list?
+		assert item != null;
 		checkMembershipOrThrow(item); // added by s‰mi
 		if (item != m_head) {
 			m_head.m_previous = m_tail;
@@ -272,8 +268,12 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	@Override
 	public void addAfter(ListItem<T> item, List<T> list) {
 		assert list != null && list != this;
+		if (list.isEmpty()) {
+			return;
+		}
+
 		if (list instanceof DLinkedList) {
-			addAfterEfficient(item, (DLinkedList<T>) list);
+			addAfterDLinkedList(item, (DLinkedList<T>) list);
 		} else {
 			for (T data : list) {
 				addAfter(item, data);
@@ -290,16 +290,17 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	 * @param item
 	 * @param list
 	 */
-	protected void addAfterEfficient(ListItem<T> item, DLinkedList<T> list) {
-		if (list.isEmpty()) {
-			return;
+	protected void addAfterDLinkedList(ListItem<T> item, DLinkedList<T> list) {
+		// TODO O(n) but very secure, decide?
+		DLinkedListIterator iter = list.listIterator();
+		while (iter.hasNext()) {
+			iter.nextItem().m_owner = this;
 		}
 		if (item == null) {
 			ListItem<T> oldHead = m_head;
 			m_head = list.m_head;
-			list.m_tail.m_next = oldHead;
 			if (oldHead != null) {
-				oldHead.m_previous = list.m_tail;
+				linkTogether(list.m_tail, oldHead);
 			} else {
 				m_tail = list.m_tail;
 			}
@@ -307,11 +308,9 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 			if (item.m_next == null) {
 				m_tail = list.m_tail;
 			} else {
-				item.m_next.m_previous = list.m_tail;
+				linkTogether(list.m_tail, item.m_next);
 			}
-			list.m_tail.m_next = item.m_next;
-			list.m_head.m_previous = item;
-			item.m_next = list.m_head;
+			linkTogether(item, list.m_head);
 		}
 
 		m_size += list.size();
@@ -322,8 +321,11 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	@Override
 	public void addBefore(ListItem<T> item, List<T> list) {
 		assert list != null && list != this;
+		if (list.isEmpty()) {
+			return;
+		}
 		if (list instanceof DLinkedList) {
-			addBeforeEfficient(item, (DLinkedList<T>) list);
+			addBeforeDLinkedList(item, (DLinkedList<T>) list);
 		} else {
 			for (T data : list) {
 				addBefore(item, data);
@@ -340,39 +342,45 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	 * @param item
 	 * @param list
 	 */
-	protected void addBeforeEfficient(ListItem<T> item, DLinkedList<T> list) {
-		if (list.isEmpty()) {
-			return;
+	protected void addBeforeDLinkedList(ListItem<T> item, DLinkedList<T> list) {
+		// TODO O(n) bu very secure, decide?
+		DLinkedListIterator iter = list.listIterator();
+		while (iter.hasNext()) {
+			iter.nextItem().m_owner = this;
 		}
 
 		if (item == null) {
 			ListItem<T> oldTail = m_tail;
 			m_tail = list.m_head;
-			m_tail.m_previous = oldTail;
 			if (oldTail != null) {
-				oldTail.m_next = list.m_head;
+				linkTogether(oldTail, list.m_head);
 			} else {
 				m_tail = list.m_tail;
 			}
 		} else if (item.m_previous == null) {
 			ListItem<T> oldHead = m_head;
 			m_head = list.m_head;
-			list.m_tail.m_next = oldHead;
 			if (oldHead != null) {
-				oldHead.m_previous = list.m_tail;
+				linkTogether(list.m_tail, oldHead);
 			} else {
 				m_tail = list.m_tail;
 			}
 		} else {
-			item.m_previous.m_next = list.m_head;
-			list.m_head.m_previous = item.m_previous;
-			item.m_previous = list.m_tail;
-			list.m_tail.m_next = item;
+			linkTogether(item.m_previous, list.m_head);
+			linkTogether(list.m_tail, item);
 		}
 
 		m_size += list.m_size;
 		modCount++;
 		list.clear();
+	}
+
+	/**
+	 * Connects firs to second, without modifying first.m_next
+	 */
+	private void linkTogether(ListItem<T> first, ListItem<T> second) {
+		first.m_next = second;
+		second.m_previous = first;
 	}
 
 	@Override
@@ -406,65 +414,8 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 		return removedElements;
 	}
 
-	@Override
-	public void replaceAll(UnaryOperator<T> operator) {
-		// TODO check if efficient
-		super.replaceAll(operator);
-	}
-
-	@Override
-	public void sort(Comparator<? super T> c) {
-		// TODO check if efficient
-		super.sort(c);
-	}
-
-	@Override
-	public Spliterator<T> spliterator() {
-		return spliterator(); // TODO discuss for efficiency
-	}
-
-	@Override
-	public boolean removeIf(Predicate<? super T> filter) {
-		return removeIf(filter); // TODO discuss for efficiency
-	}
-
-	@Override
-	public Stream<T> stream() {
-		return super.stream(); // TODO discuss for efficiency
-	}
-
-	@Override
-	public Stream<T> parallelStream() {
-		return super.parallelStream(); // TODO discuss for efficiency
-	}
-
-	@Override
-	public void forEach(Consumer<? super T> action) {
-		super.forEach(action); // TODO discuss for efficiency
-	}
-
-	public DLinkedListIterator listIterator(ListItem<T> firstItem) {
-		return new DLinkedListIterator(firstItem);
-	}
-
-	@Override
-	public DLinkedListIterator listIterator() {
-		return new DLinkedListIterator(m_head);
-	}
-
-	@Override
-	public IListIterator<T> listIterator(int index) {
-		throw new UnsupportedOperationException("cannot be implemented efficiently");
-	}
-
-	@Override
-	public Iterator<T> iterator() {
-		return new DLinkedListIterator(m_head);
-	}
-
 	/**
-	 * Make item new head Unlinks item Connects old head with item Makes new item
-	 * head
+	 * Make item new head
 	 * 
 	 * @param item
 	 */
@@ -480,8 +431,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	}
 
 	/**
-	 * Make item new tail unlink item Connects item with old tail Sets item as new
-	 * tail
+	 * Make item new tail
 	 * 
 	 * @param item
 	 */
@@ -498,18 +448,14 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	}
 
 	/**
-	 * Links item after prev. Unlinks item Connects prev with item Connets item with
-	 * prev.next
+	 * Links item after prev.
 	 */
 	private void linkInAfter(ListItem<T> prev, ListItem<T> item) {
 		assert prev != null;
 		assert item != null;
 
-		item.m_previous = prev;
-		item.m_next = prev.m_next;
-
-		item.m_previous.m_next = item;
-		item.m_next.m_previous = item;
+		linkTogether(prev, item);
+		linkTogether(item, prev.m_next);
 	}
 
 	/**
@@ -546,11 +492,39 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 		item.m_previous = null;
 	}
 
-	public class DLinkedListIterator implements IListIterator<T> {
+	public DLinkedListIterator listIterator(ListItem<T> firstItem) {
+		return new DLinkedListIterator(firstItem);
+	}
 
+	@Override
+	public DLinkedListIterator listIterator() {
+		return new DLinkedListIterator(m_head);
+	}
+
+	@Override
+	public Iterator<T> iterator() {
+		return new DLinkedListIterator(m_head);
+	}
+
+	// TODO maybe add option to enable cycling, needed by remove
+	public class DLinkedListIterator implements IListIterator<T> {
+		/**
+		 * The current modCount known to this iterator. Will be compared with modCount
+		 * of list and throw exception
+		 */
 		private long m_curModCount;
+		/**
+		 * The last returned element by next or previous. Or null, if next or previous
+		 * have not been used
+		 */
 		private ListItem<T> m_returned;
+		/**
+		 * The next element of this iterator.
+		 */
 		private ListItem<T> m_next;
+		/**
+		 * The current index of the
+		 */
 		private int m_index;
 
 		private DLinkedListIterator(ListItem<T> next) {
@@ -623,6 +597,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 		@Override
 		public ListItem<T> getVisited() {
+			// TODO test
 			if (m_returned == null) {
 				throw new IllegalStateException();
 			} else {
@@ -632,13 +607,19 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 		@Override
 		public void add(T e) {
-			// TODO Auto-generated method stub
+			// TODO test
 			checkModCount();
-			DLinkedList.this.addAfter(m_returned, e);
-			m_curModCount++;
+			if (m_returned == null) {
+				throw new IllegalStateException();
+			} else {
+				DLinkedList.this.addAfter(m_returned, e);
+				m_curModCount++;
+				m_index++;
+			}
 		}
 
 		public void remove() {
+			// TODO test
 			checkModCount();
 			if (m_returned == null) {
 				throw new IllegalStateException();
@@ -655,6 +636,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 		}
 
 		public void set(T data) {
+			// TODO test
 			if (m_returned == null) {
 				throw new IllegalStateException();
 			} else {
@@ -662,4 +644,58 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 			}
 		}
 	}
+
+	@Override
+	public <T1> T1[] toArray(T1[] a) {
+		// TODO check if efficient
+		return super.toArray(a);
+	}
+
+	@Override
+	public T get(int index) {
+		throw new UnsupportedOperationException("cannot be implemented efficiently");
+	}
+
+	@Override
+	public IListIterator<T> listIterator(int index) {
+		throw new UnsupportedOperationException("cannot be implemented efficiently");
+	}
+
+	@Override
+	public void replaceAll(UnaryOperator<T> operator) {
+		// TODO check if efficient
+		super.replaceAll(operator);
+	}
+
+	@Override
+	public void sort(Comparator<? super T> c) {
+		// TODO check if efficient
+		super.sort(c);
+	}
+
+	@Override
+	public Spliterator<T> spliterator() {
+		return super.spliterator(); // TODO discuss for efficiency
+	}
+
+	@Override
+	public boolean removeIf(Predicate<? super T> filter) {
+		return super.removeIf(filter); // TODO discuss for efficiency
+	}
+
+	@Override
+	public Stream<T> stream() {
+		return super.stream(); // TODO discuss for efficiency
+	}
+
+	@Override
+	public Stream<T> parallelStream() {
+		return super.parallelStream(); // TODO discuss for efficiency
+	}
+
+	@Override
+	public void forEach(Consumer<? super T> action) {
+		super.forEach(action); // TODO discuss for efficiency
+	}
+
 }
