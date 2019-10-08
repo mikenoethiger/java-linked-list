@@ -2,6 +2,7 @@ package ch.fhnw.algd2;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -215,6 +216,132 @@ public class CustomDLinkedTest {
 		iter.next();
 		list1.rotate(list1.next(list1.next(list1.head())));
 		iter.next();
+	}
+
+	@Test
+	public void testSwapHeadTail() {
+		addElements(list1, 2);
+
+		ListItem<Integer> head = list1.head();
+		ListItem<Integer> tail = list1.tail();
+		list1.swap(head, tail);
+		assertEquals(tail, list1.head());
+		assertEquals(head, list1.tail());
+		assertEquals(head, list1.next(list1.head()));
+		assertEquals(tail, list1.previous(list1.tail()));
+		assertEquals(tail, list1.cyclicNext(list1.tail()));
+		assertEquals(head, list1.cyclicPrevious(list1.head()));
+	}
+
+	@Test
+	public void testSwapInside() {
+		addElements(list1, 10);
+
+		ListItem<Integer> beforeFirst = list1.next(list1.head());
+		ListItem<Integer> first = list1.next(beforeFirst);
+		ListItem<Integer> afterFirst = list1.next(first);
+		ListItem<Integer> afterSecond = list1.previous(list1.tail());
+		ListItem<Integer> second = list1.previous(afterSecond);
+		ListItem<Integer> beforeSecond = list1.previous(second);
+
+		list1.swap(first, second);
+
+		assertEquals(beforeFirst, list1.previous(second));
+		assertEquals(afterSecond, list1.next(first));
+		assertEquals(afterFirst, list1.next(second));
+		assertEquals(beforeSecond, list1.previous(first));
+		assertNotEquals(list1.head(), first);
+		assertNotEquals(list1.tail(), second);
+	}
+
+	@Test
+	public void testSwapLeftBorder() {
+		addElements(list1, 10);
+
+		ListItem<Integer> beforeFirst = null;
+		ListItem<Integer> first = list1.head();
+		ListItem<Integer> afterFirst = list1.next(first);
+		ListItem<Integer> afterSecond = list1.previous(list1.tail());
+		ListItem<Integer> second = list1.previous(afterSecond);
+		ListItem<Integer> beforeSecond = list1.previous(second);
+
+		list1.swap(first, second);
+
+		assertEquals(beforeFirst, list1.previous(second));
+		assertEquals(afterSecond, list1.next(first));
+		assertEquals(afterFirst, list1.next(second));
+		assertEquals(beforeSecond, list1.previous(first));
+		assertEquals(list1.head(), second);
+		assertNotEquals(list1.tail(), second);
+		assertNotEquals(list1.tail(), first);
+		assertNotEquals(list1.head(), first);
+	}
+
+	@Test
+	public void testSwapRightBorder() {
+		addElements(list1, 10);
+
+		ListItem<Integer> beforeFirst = list1.next(list1.head());
+		ListItem<Integer> first = list1.next(beforeFirst);
+		ListItem<Integer> afterFirst = list1.next(first);
+
+		ListItem<Integer> afterSecond = null;
+		ListItem<Integer> second = list1.tail();
+		ListItem<Integer> beforeSecond = list1.previous(second);
+
+		list1.swap(second, first);
+
+		assertEquals(beforeFirst, list1.previous(second));
+		assertEquals(afterSecond, list1.next(first));
+		assertEquals(afterFirst, list1.next(second));
+		assertEquals(beforeSecond, list1.previous(first));
+		assertEquals(list1.tail(), first);
+		assertNotEquals(list1.head(), first);
+		assertNotEquals(list1.head(), second);
+		assertNotEquals(list1.tail(), second);
+	}
+
+	@Test
+	public void testReverseOneElement() {
+		addElements(list1, 1);
+		addElements(list2, 1);
+
+		list1.reverse();
+
+		equals();
+	}
+	
+	@Test
+	public void testReverseStatic() {
+		addElements(list1, 5);
+
+		list1.reverse();
+
+		assertEquals(new Integer[] {4,3,2,1,0}, list1);
+	}
+	
+	@Test
+	public void testReverseReverse() {
+		addElements(list1, 100);
+		addElements(list2, 100);
+
+		list1.reverse();
+		list1.reverse();
+
+		equals();
+	}
+
+	@Test
+	public void testSwapForthAndBack() {
+		addElements(list1, 10);
+
+		ListItem<Integer> first = list1.next(list1.next(list1.head()));
+		ListItem<Integer> second = list1.previous(list1.previous(list1.tail()));
+
+		list1.swap(first, second);
+		list1.swap(second, first);
+
+		assertArrayEquals(new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, list1.toArray());
 	}
 
 	private void addElements(List<Integer> list, int size) {
