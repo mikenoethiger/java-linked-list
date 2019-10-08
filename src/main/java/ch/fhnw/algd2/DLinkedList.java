@@ -331,12 +331,12 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	public void reverse() {
 		ListItem<T> left = head();
 		ListItem<T> right = tail();
-		int size = size()/2;
 		for (int i = 0; i < size()/2; i++) {
 			swap(left, right);
 			// notice that left and right have been swapped
+			ListItem<T> leftBefore = left;
 			left = next(right);
-			right = previous(left);
+			right = previous(leftBefore);
 		}
 	}
 
