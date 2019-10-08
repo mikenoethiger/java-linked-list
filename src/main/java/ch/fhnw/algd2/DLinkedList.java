@@ -257,12 +257,78 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public void swap(ListItem<T> item1, ListItem<T> item2) {
-		// TODO @mike
+		assert item1 != null && item2 != null;
+		// SWAP WAS A PAIN IN THE ASS -.-
+		// Edge Cases:
+		// * item1 = item2 (nothing to rewire)
+		// * item2 is left neighbour of item1 (6 rewires)
+		// * item2 is right neighbour of item1 (6 rewires, other way around)
+		// * item1 and item2 are not neighbours (8 rewires, due to the intermediate element(s))
+		// * item1 was head|tail
+		// * item2 was head|tail
+		// If item1 and item2 are not neighbours, predecessor/successor of item1 will become
+		// the pred/succ of item2 and vice versa.
+		// But if they are neighbours, doing the same "stupid" relation swap will end in an endless linkage.
+		// Consider the following linked list:
+		// item0 <> item1 <> item2 <> item3
+		// If the succ of item1 becomes the succ of item2, item2 would link to itself.
+
+		checkMembershipOrThrow(item1);
+		checkMembershipOrThrow(item2);
+
+		if (item1 == item2) return;
+
+		if (item1.m_previous == item2) { // item2 is left neighbour of item1
+			// swap references, so that item2 is now right neighbour of item1
+			// which will make it obsolete to distinct between left and right neighbour,
+			// thus reduce code redundancy, complexity and increase readability.
+			ListItem<T> tmp = item1;
+			item1 = item2;
+			item2 = tmp;
+		}
+
+		// snapshot of relations
+		ListItem<T> item1Prev = item1.m_previous;
+		ListItem<T> item1Next = item1.m_next;
+		ListItem<T> item2Prev = item2.m_previous;
+		ListItem<T> item2Next = item2.m_next;
+
+		item1.m_next = item2Next;
+		item2.m_previous = item1Prev;
+
+		if (item1Next == item2) { // item2 is right neighbour of item1 (6 assignments)
+			item1.m_previous = item2;
+			item2.m_next = item1;
+		} else { // item2 is not neighbour of item1 (8 assignments, 2 more for intermediate element(s))
+			item1.m_previous = item2Prev;
+			item2.m_next = item1Next;
+
+			if (item2Prev != null) item2Prev.m_next = item1;
+			if (item1Next != null) item1Next.m_previous = item2;
+		}
+
+		// item1 was not head
+		if (item1Prev != null) item1Prev.m_next = item2;
+		// item2 was not tail
+		if (item2Next != null) item2Next.m_previous = item1;
+
+		// refresh heads/tails
+		if (m_head == item1) m_head = item2;
+		else if (m_head == item2) m_head = item1;
+		if (m_tail == item1) m_tail = item2;
+		else if (m_tail == item2) m_tail = item1;
 	}
 
 	@Override
 	public void reverse() {
-		// TODO @mike
+		ListItem<T> left = head();
+		ListItem<T> right = tail();
+		for (int i = 0; i < size()/2; i++) {
+			swap(left, right);
+			// notice that left and right have been swapped
+			left = next(right);
+			right = previous(left);
+		}
 	}
 
 	@Override
@@ -286,7 +352,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	/**
 	 * Inserts all elements of list after item in O(1) time.
-	 * 
+	 *
 	 * @param item
 	 * @param list
 	 */
@@ -338,7 +404,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	/**
 	 * Inserts all elements of list after item in O(1) time.
-	 * 
+	 *
 	 * @param item
 	 * @param list
 	 */
@@ -416,7 +482,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	/**
 	 * Make item new head
-	 * 
+	 *
 	 * @param item
 	 */
 	private void linkInFront(ListItem<T> item) {
@@ -432,7 +498,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	/**
 	 * Make item new tail
-	 * 
+	 *
 	 * @param item
 	 */
 	private void linkInBack(ListItem<T> item) {
@@ -461,7 +527,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	/**
 	 * Removes the item from the list. Removes next and prev from item Connect prev
 	 * and next together
-	 * 
+	 *
 	 * @param item
 	 */
 	private void unlink(ListItem<T> item) {
