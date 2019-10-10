@@ -317,7 +317,7 @@ public class CustomDLinkedTest {
 
 		list1.reverse();
 
-		assertEquals(new Integer[] {4,3,2,1,0}, list1);
+		assertEquals(new Integer[] {4,3,2,1,0}, list1.toArray());
 	}
 	
 	@Test
