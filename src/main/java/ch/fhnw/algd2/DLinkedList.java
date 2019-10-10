@@ -54,7 +54,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	@Override
 	public T get(ListItem<T> item) {
 		assert item != null;
-		checkMembershipOrThrow(item);
+		checkMembershipPrecondition(item);
 		return item.m_data;
 	}
 
@@ -65,19 +65,14 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public boolean checkMembership(ListItem<T> item) {
-		// TODO in order to check the membership of an item, the item needs a reference
-		// to the LinkedList it belongs to. This reference has to be removed (or set to
-		// null), as the item is deleted from the list.
-		if (item.m_owner != this) {
-			return false;
-		}
-		return true;
+		return item != null && item.m_owner == this;
 	}
 
-	private void checkMembershipOrThrow(ListItem<T> item) {
-		if (!checkMembership(item)) {
-			throw new NoSuchElementException("item is no element of this list");
-		}
+	/**
+	 * Asserts the precondition "items in this list"
+	 */
+	private void checkMembershipPrecondition(ListItem<T> item) {
+		assert item.m_owner == this;
 	}
 
 	@Override
@@ -117,21 +112,21 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	@Override
 	public ListItem<T> next(ListItem<T> item) {
 		assert item != null;
-		checkMembershipOrThrow(item);
+		checkMembershipPrecondition(item);
 		return item.m_next;
 	}
 
 	@Override
 	public ListItem<T> previous(ListItem<T> item) {
 		assert item != null;
-		checkMembershipOrThrow(item);
+		checkMembershipPrecondition(item);
 		return item.m_previous;
 	}
 
 	@Override
 	public ListItem<T> cyclicNext(ListItem<T> item) {
 		assert item != null;
-		checkMembershipOrThrow(item);
+		checkMembershipPrecondition(item);
 		if (item == m_tail) {
 			return m_head;
 		}
@@ -141,7 +136,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	@Override
 	public ListItem<T> cyclicPrevious(ListItem<T> item) {
 		assert item != null;
-		checkMembershipOrThrow(item);
+		checkMembershipPrecondition(item);
 		if (item == m_head) {
 			return m_tail;
 		}
@@ -155,7 +150,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	private ListItem<T> deleteImpl(ListItem<T> item, boolean next) {
 		assert item != null;
-		checkMembershipOrThrow(item);
+		checkMembershipPrecondition(item);
 		ListItem<T> returnValue = null;
 		if (next) {
 			returnValue = item.m_next;
@@ -179,7 +174,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	@Override
 	public void set(ListItem<T> item, T data) {
 		assert item != null;
-		checkMembershipOrThrow(item); // TODO discuss: throw exception ok?
+		checkMembershipPrecondition(item); // TODO discuss: throw exception ok?
 		// no modCount++ seems to be correct
 		item.m_data = data;
 	}
@@ -187,7 +182,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	@Override
 	public T remove(ListItem<T> item) {
 		assert item != null;
-		checkMembershipOrThrow(item);
+		checkMembershipPrecondition(item);
 		unlink(item);
 		return item.m_data;
 	}
@@ -221,7 +216,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 			// TODO Is it correct to append the new item to tail if item is null?
 			return addTail(data);
 		}
-		checkMembershipOrThrow(item);
+		checkMembershipPrecondition(item);
 		if (item == m_head) {
 			return addHead(data);
 		}
@@ -233,7 +228,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	@Override
 	public void moveToHead(ListItem<T> item) {
 		assert item != null;
-		checkMembershipOrThrow(item);
+		checkMembershipPrecondition(item);
 		unlink(item);
 		linkInFront(item);
 		modCount++;
@@ -242,7 +237,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	@Override
 	public void moveToTail(ListItem<T> item) {
 		assert item != null;
-		checkMembershipOrThrow(item);
+		checkMembershipPrecondition(item);
 		unlink(item);
 		linkInBack(item);
 		modCount++;
@@ -251,7 +246,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	@Override
 	public void rotate(ListItem<T> item) {
 		assert item != null;
-		checkMembershipOrThrow(item); // added by s?mi
+		checkMembershipPrecondition(item); // added by s?mi
 		if (item != m_head) {
 			m_head.m_previous = m_tail;
 			m_tail.m_next = m_head;
@@ -271,20 +266,24 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 		// * item1 = item2 (nothing to rewire)
 		// * item2 is left neighbour of item1 (6 rewires)
 		// * item2 is right neighbour of item1 (6 rewires, other way around)
-		// * item1 and item2 are not neighbours (8 rewires, due to the intermediate element(s))
+		// * item1 and item2 are not neighbours (8 rewires, due to the intermediate
+		// element(s))
 		// * item1 was head|tail
 		// * item2 was head|tail
-		// If item1 and item2 are not neighbours, predecessor/successor of item1 will become
+		// If item1 and item2 are not neighbours, predecessor/successor of item1 will
+		// become
 		// the pred/succ of item2 and vice versa.
-		// But if they are neighbours, doing the same "stupid" relation swap will end in an endless linkage.
+		// But if they are neighbours, doing the same "stupid" relation swap will end in
+		// an endless linkage.
 		// Consider the following linked list:
 		// item0 <> item1 <> item2 <> item3
 		// If the succ of item1 becomes the succ of item2, item2 would link to itself.
 
-		checkMembershipOrThrow(item1);
-		checkMembershipOrThrow(item2);
+		checkMembershipPrecondition(item1);
+		checkMembershipPrecondition(item2);
 
-		if (item1 == item2) return;
+		if (item1 == item2)
+			return;
 
 		if (item1.m_previous == item2) { // item2 is left neighbour of item1
 			// swap references, so that item2 is now right neighbour of item1
@@ -307,31 +306,40 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 		if (item1Next == item2) { // item2 is right neighbour of item1 (6 assignments)
 			item1.m_previous = item2;
 			item2.m_next = item1;
-		} else { // item2 is not neighbour of item1 (8 assignments, 2 more for intermediate element(s))
+		} else { // item2 is not neighbour of item1 (8 assignments, 2 more for intermediate
+					// element(s))
 			item1.m_previous = item2Prev;
 			item2.m_next = item1Next;
 
-			if (item2Prev != null) item2Prev.m_next = item1;
-			if (item1Next != null) item1Next.m_previous = item2;
+			if (item2Prev != null)
+				item2Prev.m_next = item1;
+			if (item1Next != null)
+				item1Next.m_previous = item2;
 		}
 
 		// item1 was not head
-		if (item1Prev != null) item1Prev.m_next = item2;
+		if (item1Prev != null)
+			item1Prev.m_next = item2;
 		// item2 was not tail
-		if (item2Next != null) item2Next.m_previous = item1;
+		if (item2Next != null)
+			item2Next.m_previous = item1;
 
 		// refresh heads/tails
-		if (m_head == item1) m_head = item2;
-		else if (m_head == item2) m_head = item1;
-		if (m_tail == item1) m_tail = item2;
-		else if (m_tail == item2) m_tail = item1;
+		if (m_head == item1)
+			m_head = item2;
+		else if (m_head == item2)
+			m_head = item1;
+		if (m_tail == item1)
+			m_tail = item2;
+		else if (m_tail == item2)
+			m_tail = item1;
 	}
 
 	@Override
 	public void reverse() {
 		ListItem<T> left = head();
 		ListItem<T> right = tail();
-		for (int i = 0; i < size()/2; i++) {
+		for (int i = 0; i < size() / 2; i++) {
 			swap(left, right);
 			// notice that left and right have been swapped
 			ListItem<T> leftBefore = left;
@@ -420,14 +428,16 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 			iter.nextItem().m_owner = this;
 		}
 
+		// item is null -> insert list AFTER list (against intuition)
 		if (item == null) {
 			ListItem<T> oldTail = m_tail;
-			m_tail = list.m_head;
+			m_tail = list.m_tail;
 			if (oldTail != null) {
 				linkTogether(oldTail, list.m_head);
 			} else {
-				m_tail = list.m_tail;
+				m_head = list.m_head;
 			}
+			// item.previous -> insert list BEFORE existing list
 		} else if (item.m_previous == null) {
 			ListItem<T> oldHead = m_head;
 			m_head = list.m_head;
@@ -436,6 +446,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 			} else {
 				m_tail = list.m_tail;
 			}
+			// insert list BEFORE item
 		} else {
 			linkTogether(item.m_previous, list.m_head);
 			linkTogether(list.m_tail, item);
@@ -465,23 +476,21 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public IList<T> remove(ListItem<T> startInclusive, ListItem<T> endExclusive) {
-		checkMembershipOrThrow(startInclusive);
-		checkMembershipOrThrow(endExclusive);
+		checkMembershipPrecondition(startInclusive);
+		checkMembershipPrecondition(endExclusive);
 
 		DLinkedList<T> removedElements = new DLinkedList<T>();
-		DLinkedListIterator iter = listIterator(startInclusive);
-		ListItem<T> current = iter.nextItem();
+		ListItem<T> current = startInclusive;
+
 		do {
-			iter.remove();
-			removedElements.add(current.getData());
-			if (iter.hasNext()) {
-				current = iter.nextItem();
-			} else {
-				iter = listIterator();
-				current = iter.nextItem();
-			}
-			// TODO optimize
-		} while (current != endExclusive);
+			ListItem<T> newOne = cyclicNext(current);
+			unlink(current);
+			current.m_owner = removedElements;
+			removedElements.linkInBack(current);
+			current = newOne;
+		} while (current != endExclusive && m_size != 0);
+		// check size because when removing all items (startInclusive
+		// == endExclusive) the last cyclicNext call removes itself.
 		return removedElements;
 	}
 
@@ -698,7 +707,6 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 		}
 
 		public void remove() {
-			// TODO test
 			checkModCount();
 			if (m_returned == null) {
 				throw new IllegalStateException();
@@ -715,7 +723,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 		}
 
 		public void set(T data) {
-			// TODO test
+			checkModCount();
 			if (m_returned == null) {
 				throw new IllegalStateException();
 			} else {
@@ -726,7 +734,6 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public <T1> T1[] toArray(T1[] a) {
-		// TODO check if efficient
 		return super.toArray(a);
 	}
 
@@ -741,14 +748,12 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	}
 
 	@Override
-	public void replaceAll(UnaryOperator<T> operator) {
-		// TODO check if efficient
-		super.replaceAll(operator);
+	public boolean removeIf(Predicate<? super T> filter) {
+		throw new UnsupportedOperationException("cannot be implemented efficiently");
 	}
 
 	@Override
 	public void sort(Comparator<? super T> c) {
-		// TODO check if efficient
 		super.sort(c);
 	}
 
@@ -758,23 +763,22 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	}
 
 	@Override
-	public boolean removeIf(Predicate<? super T> filter) {
-		return super.removeIf(filter); // TODO discuss for efficiency
+	public void replaceAll(UnaryOperator<T> operator) {
+		super.replaceAll(operator);
 	}
 
 	@Override
 	public Stream<T> stream() {
-		return super.stream(); // TODO discuss for efficiency
+		return super.stream();
 	}
 
 	@Override
 	public Stream<T> parallelStream() {
-		return super.parallelStream(); // TODO discuss for efficiency
+		return super.parallelStream();
 	}
 
 	@Override
 	public void forEach(Consumer<? super T> action) {
-		super.forEach(action); // TODO discuss for efficiency
 	}
 
 }

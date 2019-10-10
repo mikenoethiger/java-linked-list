@@ -3,12 +3,12 @@ package ch.fhnw.algd2;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +46,65 @@ public class CustomDLinkedTest {
 	}
 
 	@Test
+	public void testIteratorSet() {
+		addElements(list1, 100);
+
+		IListIterator<Integer> iter = list1.listIterator();
+		iter.next();
+		iter.next();
+		iter.set(10);
+
+		assertEquals(Integer.valueOf(0), list1.head().getData());
+		assertEquals(Integer.valueOf(10), list1.next(list1.head()).getData());
+	}
+
+	@Test
+	public void testIteratorRemove() {
+		addElements(list1, 100);
+
+		IListIterator<Integer> iter = list1.listIterator();
+		iter.next();
+		iter.next();
+		iter.remove();
+
+		assertEquals(Integer.valueOf(0), list1.head().getData());
+		assertEquals(Integer.valueOf(2), list1.next(list1.head()).getData());
+	}
+
+	@Test
+	public void testIterRemoveEverything() {
+		addElements(list1, 100);
+
+		IListIterator<Integer> iter = list1.listIterator();
+		while (iter.hasNext()) {
+			iter.next();
+			iter.remove();
+		}
+
+		assertTrue(list1.isEmpty());
+	}
+
+	@Test
+	public void testRemoveRangeEverything() {
+		addElements(list1, 10);
+
+		ListItem<Integer> middle = list1.next(list1.next(list1.next(list1.head())));
+		list1.remove(middle, middle);
+
+		assertTrue(list1.isEmpty());
+	}
+
+	@Test(expected = ConcurrentModificationException.class)
+	public void testNextModCountIterator() {
+		addElements(list1, 100);
+
+		IListIterator<Integer> iter = list1.listIterator();
+		iter.next();
+		list1.add(100);
+		iter.next();
+	}
+
+	@Test
 	public void testBackAndForthListIterator() {
 		addElements(list1, Size);
 
@@ -75,6 +134,18 @@ public class CustomDLinkedTest {
 		assertEquals(null, list1.previous(list1.tail()));
 	}
 
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testAddBefore() {
+		DLinkedList<Integer> list0 = new DLinkedList<>();
+		addElements(list0, 10);
+		addElements(list1, 10);
+
+		list0.addBefore(null, list1);
+
+		assertEquals(new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, list0.toArray());
+	}
+
 	@Test
 	public void testRemove() {
 		addElements(list1, 1000);
@@ -88,7 +159,7 @@ public class CustomDLinkedTest {
 		assertEquals(0, list1.size());
 	}
 
-	@Test(expected = NoSuchElementException.class)
+	@Test(expected = AssertionError.class)
 	public void testRemoveForeignItem() {
 		addElements(list1, 10);
 
@@ -98,7 +169,7 @@ public class CustomDLinkedTest {
 		list1.remove(foreignList.head());
 	}
 
-	@Test(expected = NoSuchElementException.class)
+	@Test(expected = AssertionError.class)
 	public void testGetForeignItem() {
 		addElements(list1, 10);
 
@@ -108,7 +179,7 @@ public class CustomDLinkedTest {
 		list1.get(foreignList.head());
 	}
 
-	@Test(expected = NoSuchElementException.class)
+	@Test(expected = AssertionError.class)
 	public void testPreviousForeignItem() {
 		addElements(list1, 10);
 
@@ -118,7 +189,7 @@ public class CustomDLinkedTest {
 		list1.previous(foreignList.head());
 	}
 
-	@Test(expected = NoSuchElementException.class)
+	@Test(expected = AssertionError.class)
 	public void testNextForeignItem() {
 		addElements(list1, 10);
 
@@ -128,7 +199,7 @@ public class CustomDLinkedTest {
 		list1.next(foreignList.head());
 	}
 
-	@Test(expected = NoSuchElementException.class)
+	@Test(expected = AssertionError.class)
 	public void testRotateForeignItem() {
 		addElements(list1, 10);
 
@@ -138,7 +209,7 @@ public class CustomDLinkedTest {
 		list1.rotate(foreignList.head());
 	}
 
-	@Test(expected = NoSuchElementException.class)
+	@Test(expected = AssertionError.class)
 	public void testMoveToTailForeignItem() {
 		addElements(list1, 10);
 
@@ -148,7 +219,7 @@ public class CustomDLinkedTest {
 		list1.moveToTail(foreignList.head());
 	}
 
-	@Test(expected = NoSuchElementException.class)
+	@Test(expected = AssertionError.class)
 	public void testMoveToHeadForeignItem() {
 		addElements(list1, 10);
 
@@ -310,16 +381,16 @@ public class CustomDLinkedTest {
 
 		equals();
 	}
-	
+
 	@Test
 	public void testReverseStatic() {
 		addElements(list1, 5);
 
 		list1.reverse();
 
-		assertEquals(new Integer[] {4,3,2,1,0}, list1.toArray());
+		assertEquals(new Integer[] { 4, 3, 2, 1, 0 }, list1.toArray());
 	}
-	
+
 	@Test
 	public void testReverseReverse() {
 		addElements(list1, 100);
