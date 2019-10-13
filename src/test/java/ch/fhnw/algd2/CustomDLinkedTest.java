@@ -88,7 +88,7 @@ public class CustomDLinkedTest {
 	public void testRemoveRangeEverything() {
 		addElements(list1, 10);
 
-		ListItem<Integer> middle = list1.next(list1.next(list1.next(list1.head())));
+		ListItem middle = list1.next(list1.next(list1.next(list1.head())));
 		list1.remove(middle, middle);
 
 		assertTrue(list1.isEmpty());
@@ -293,8 +293,8 @@ public class CustomDLinkedTest {
 	public void testSwapHeadTail() {
 		addElements(list1, 2);
 
-		ListItem<Integer> head = list1.head();
-		ListItem<Integer> tail = list1.tail();
+		ListItem head = list1.head();
+		ListItem tail = list1.tail();
 		list1.swap(head, tail);
 		assertEquals(tail, list1.head());
 		assertEquals(head, list1.tail());
@@ -308,12 +308,12 @@ public class CustomDLinkedTest {
 	public void testSwapInside() {
 		addElements(list1, 10);
 
-		ListItem<Integer> beforeFirst = list1.next(list1.head());
-		ListItem<Integer> first = list1.next(beforeFirst);
-		ListItem<Integer> afterFirst = list1.next(first);
-		ListItem<Integer> afterSecond = list1.previous(list1.tail());
-		ListItem<Integer> second = list1.previous(afterSecond);
-		ListItem<Integer> beforeSecond = list1.previous(second);
+		ListItem beforeFirst = list1.next(list1.head());
+		ListItem first = list1.next(beforeFirst);
+		ListItem afterFirst = list1.next(first);
+		ListItem afterSecond = list1.previous(list1.tail());
+		ListItem second = list1.previous(afterSecond);
+		ListItem beforeSecond = list1.previous(second);
 
 		list1.swap(first, second);
 
@@ -329,12 +329,12 @@ public class CustomDLinkedTest {
 	public void testSwapLeftBorder() {
 		addElements(list1, 10);
 
-		ListItem<Integer> beforeFirst = null;
-		ListItem<Integer> first = list1.head();
-		ListItem<Integer> afterFirst = list1.next(first);
-		ListItem<Integer> afterSecond = list1.previous(list1.tail());
-		ListItem<Integer> second = list1.previous(afterSecond);
-		ListItem<Integer> beforeSecond = list1.previous(second);
+		ListItem beforeFirst = null;
+		ListItem first = list1.head();
+		ListItem afterFirst = list1.next(first);
+		ListItem afterSecond = list1.previous(list1.tail());
+		ListItem second = list1.previous(afterSecond);
+		ListItem beforeSecond = list1.previous(second);
 
 		list1.swap(first, second);
 
@@ -352,13 +352,13 @@ public class CustomDLinkedTest {
 	public void testSwapRightBorder() {
 		addElements(list1, 10);
 
-		ListItem<Integer> beforeFirst = list1.next(list1.head());
-		ListItem<Integer> first = list1.next(beforeFirst);
-		ListItem<Integer> afterFirst = list1.next(first);
+		ListItem beforeFirst = list1.next(list1.head());
+		ListItem first = list1.next(beforeFirst);
+		ListItem afterFirst = list1.next(first);
 
-		ListItem<Integer> afterSecond = null;
-		ListItem<Integer> second = list1.tail();
-		ListItem<Integer> beforeSecond = list1.previous(second);
+		ListItem afterSecond = null;
+		ListItem second = list1.tail();
+		ListItem beforeSecond = list1.previous(second);
 
 		list1.swap(second, first);
 
@@ -406,8 +406,8 @@ public class CustomDLinkedTest {
 	public void testSwapForthAndBack() {
 		addElements(list1, 10);
 
-		ListItem<Integer> first = list1.next(list1.next(list1.head()));
-		ListItem<Integer> second = list1.previous(list1.previous(list1.tail()));
+		ListItem first = list1.next(list1.next(list1.head()));
+		ListItem second = list1.previous(list1.previous(list1.tail()));
 
 		list1.swap(first, second);
 		list1.swap(second, first);
