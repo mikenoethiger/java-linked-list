@@ -597,18 +597,18 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 		 * The latest known modCount of the list being iterated by this iterator.
 		 */
 		private long m_curModCount;
-		
+
 		/**
 		 * The last returned item by next or previous. Or null, if next() or previous()
 		 * have not been used
 		 */
 		private ListItem m_returned;
-		
+
 		/**
 		 * The next item of this iterator.
 		 */
 		private ListItem m_next;
-		
+
 		/**
 		 * The index of m_next
 		 */
@@ -731,24 +731,17 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 		@Override
 		public ListItem getVisited() {
+			assert m_returned != null;
 			checkModCount();
-			if (m_returned == null) {
-				throw new IllegalStateException();
-			} else {
-				return m_returned;
-			}
+			return m_returned;
 		}
 
 		@Override
 		public void add(T e) {
 			checkModCount();
-			if (m_returned == null) {
-				throw new IllegalStateException();
-			} else {
-				DLinkedList.this.addAfter(m_returned, e);
-				m_curModCount = DLinkedList.this.modCount;
-				m_index++;
-			}
+			DLinkedList.this.addBefore(m_next, e);
+			m_curModCount = DLinkedList.this.modCount;
+			m_index++;
 		}
 
 		public void remove() {
