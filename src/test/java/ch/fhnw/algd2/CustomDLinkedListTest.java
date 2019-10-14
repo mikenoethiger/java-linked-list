@@ -15,7 +15,12 @@ import org.junit.Test;
 
 import ch.fhnw.algd2.DLinkedList.ListItem;
 
-public class CustomDLinkedTest {
+/**
+ * 
+ * @author Samuel Keusch, Marco Waldmeier, Mike Nöthiger
+ *
+ */
+public class CustomDLinkedListTest {
 	private final int TEST_DEFAULT_SIZE = 10000000;
 	private IList<Integer> list1;
 	private List<Integer> list2;
@@ -43,6 +48,17 @@ public class CustomDLinkedTest {
 		list1.moveToHead(list1.tail());
 		assertEquals(Integer.valueOf(2), list1.head().getData());
 		assertEquals(Integer.valueOf(1), list1.tail().getData());
+	}
+
+	@Test
+	public void testIteratorAtRequestedPosition() {
+		addElements(list1, 100);
+
+		assertEquals(Integer.valueOf(0), list1.listIterator(0).next());
+		assertEquals(Integer.valueOf(99), list1.listIterator(list1.size()).previous());
+		assertEquals(Integer.valueOf(99), list1.listIterator(list1.size() - 1).next());
+		assertEquals(Integer.valueOf(11), list1.listIterator(11).next());
+		assertEquals(Integer.valueOf(79), list1.listIterator(79).next());
 	}
 
 	@Test
@@ -146,6 +162,28 @@ public class CustomDLinkedTest {
 		assertEquals(new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, list0.toArray());
 	}
 
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testAddBeforeArrayList() {
+		addElements(list1, 10);
+		addElements(list2, 10);
+
+		list1.addBefore(null, list2);
+
+		assertEquals(new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, list1.toArray());
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testAddAfterArrayList() {
+		addElements(list1, 10);
+		addElements(list2, 10);
+
+		list1.addAfter(null, list2);
+
+		assertEquals(new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, list1.toArray());
+	}
+
 	@Test
 	public void testRemove() {
 		addElements(list1, 1000);
@@ -157,6 +195,22 @@ public class CustomDLinkedTest {
 			it = t;
 		}
 		assertEquals(0, list1.size());
+	}
+
+	@Test(expected = AssertionError.class)
+	public void addAfterListForeignListItem() {
+		DLinkedList<Integer> list3 = new DLinkedList<>();
+		list3.add(424);
+
+		list1.addAfter(list3.head(), list2);
+	}
+
+	@Test(expected = AssertionError.class)
+	public void addBeforeListForeignListItem() {
+		DLinkedList<Integer> list3 = new DLinkedList<>();
+		list3.add(424);
+
+		list1.addAfter(list3.head(), list2);
 	}
 
 	@Test(expected = AssertionError.class)
@@ -382,6 +436,7 @@ public class CustomDLinkedTest {
 		equals();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testReverseStatic() {
 		addElements(list1, 5);
@@ -411,6 +466,12 @@ public class CustomDLinkedTest {
 		assertEquals(0, iter.nextIndex());
 		assertEquals(-1, iter.previousIndex());
 		iter.next();
+		assertEquals(1, iter.nextIndex());
+		assertEquals(0, iter.previousIndex());
+		iter.next();
+		assertEquals(2, iter.nextIndex());
+		assertEquals(1, iter.previousIndex());
+		iter.previous();
 		assertEquals(1, iter.nextIndex());
 		assertEquals(0, iter.previousIndex());
 		iter.next();
