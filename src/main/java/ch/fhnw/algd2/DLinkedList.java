@@ -4,7 +4,6 @@ import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
@@ -20,12 +19,12 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	private int m_size;
 
 	public static class ListItem {
-		private DLinkedList m_owner;
+		private DLinkedList<?> m_owner;
 		private Object m_data;
 		private ListItem m_next;
 		private ListItem m_previous;
 
-		private ListItem(DLinkedList owner, Object data) {
+		private ListItem(DLinkedList<?> owner, Object data) {
 			assert owner != null;
 			this.m_data = data;
 			this.m_owner = owner;
@@ -51,11 +50,12 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public T get(ListItem item) {
 		assert item != null;
 		checkMembershipPrecondition(item);
-		return (T)item.m_data;
+		return (T) item.m_data;
 	}
 
 	@Override
@@ -179,12 +179,13 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 		item.m_data = data;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public T remove(ListItem item) {
 		assert item != null;
 		checkMembershipPrecondition(item);
 		unlink(item);
-		return (T)item.m_data;
+		return (T) item.m_data;
 	}
 
 	@Override
@@ -590,7 +591,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	}
 
 	@Override
-	public Iterator<T> iterator() {
+	public DLinkedListIterator iterator() {
 		return new DLinkedListIterator(m_head);
 	}
 
@@ -636,9 +637,10 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 			return m_next == null ? m_tail != null : m_next.m_previous != null;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public T next() {
-			return (T)nextItem().m_data;
+			return (T) nextItem().m_data;
 		}
 
 		public ListItem nextItem() {
@@ -668,9 +670,10 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 			return m_returned;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public T previous() {
-			return (T)previousItem().m_data;
+			return (T) previousItem().m_data;
 		}
 
 		@Override
@@ -680,12 +683,17 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 		@Override
 		public int previousIndex() {
-			return m_index - 1;
+			if (m_next == null) {
+				return DLinkedList.this.m_size - 1;
+			} else if (m_next.m_previous == null) {
+				return -1; // according to the spec
+			} else {
+				return m_index - 1;
+			}
 		}
 
 		@Override
 		public ListItem getVisited() {
-			// TODO test
 			if (m_returned == null) {
 				throw new IllegalStateException();
 			} else {
@@ -695,7 +703,6 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 		@Override
 		public void add(T e) {
-			// TODO test
 			checkModCount();
 			if (m_returned == null) {
 				throw new IllegalStateException();
@@ -744,6 +751,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public IListIterator<T> listIterator(int index) {
+		// TODO implement
 		throw new UnsupportedOperationException("cannot be implemented efficiently");
 	}
 

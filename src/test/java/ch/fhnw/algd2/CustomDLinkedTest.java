@@ -16,7 +16,7 @@ import org.junit.Test;
 import ch.fhnw.algd2.DLinkedList.ListItem;
 
 public class CustomDLinkedTest {
-	private final int Size = 10000000;
+	private final int TEST_DEFAULT_SIZE = 10000000;
 	private IList<Integer> list1;
 	private List<Integer> list2;
 
@@ -106,7 +106,7 @@ public class CustomDLinkedTest {
 
 	@Test
 	public void testBackAndForthListIterator() {
-		addElements(list1, Size);
+		addElements(list1, TEST_DEFAULT_SIZE);
 
 		IListIterator<Integer> iter = list1.listIterator();
 
@@ -400,6 +400,58 @@ public class CustomDLinkedTest {
 		list1.reverse();
 
 		equals();
+	}
+
+	@Test
+	public void testIteratorIndex() {
+		addElements(list1, 3);
+
+		IListIterator<Integer> iter = list1.listIterator();
+
+		assertEquals(0, iter.nextIndex());
+		assertEquals(-1, iter.previousIndex());
+		iter.next();
+		assertEquals(1, iter.nextIndex());
+		assertEquals(0, iter.previousIndex());
+		iter.next();
+		assertEquals(2, iter.nextIndex());
+		assertEquals(1, iter.previousIndex());
+		iter.next();
+		assertEquals(2, iter.previousIndex());
+		assertEquals(list1.size(), iter.nextIndex());
+	}
+
+	@Test
+	public void testIteratorRemoveIndex() {
+		addElements(list1, 10);
+
+		IListIterator<Integer> iter = list1.listIterator();
+		iter.next();
+		iter.remove();
+		assertEquals(0, iter.nextIndex());
+	}
+
+	@Test
+	public void testIteratorAddIndex() {
+		addElements(list1, 10);
+
+		IListIterator<Integer> iter = list1.listIterator();
+		iter.next();
+		iter.add(235);
+		assertEquals(2, iter.nextIndex());
+	}
+
+	@Test
+	public void testIteratorGetVisited() {
+		addElements(list1, 10);
+
+		IListIterator<Integer> iter = list1.listIterator();
+		Integer l = iter.next();
+		assertEquals(l, iter.getVisited().getData());
+		l = iter.next();
+		assertEquals(l, iter.getVisited().getData());
+		l = iter.previous();
+		assertEquals(l, iter.getVisited().getData());
 	}
 
 	@Test
