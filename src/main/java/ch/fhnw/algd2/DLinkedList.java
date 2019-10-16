@@ -261,13 +261,15 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 		// * item1 was head|tail
 		// * item2 was head|tail
 		// If item1 and item2 are not neighbours, predecessor/successor of item1 will
-		// become
-		// the pred/succ of item2 and vice versa.
-		// But if they are neighbours, doing the same "stupid" relation swap will end in
-		// an endless linkage.
-		// Consider the following linked list:
+		// become the pred/succ of item2 and vice versa.
+		// But if they are neighbours, applying the same swap logic will end in
+		// a cycle.
+		// Consider the following linked list, where you want to swap item1 with item2:
 		// item0 <> item1 <> item2 <> item3
-		// If the succ of item1 becomes the succ of item2, item2 would link to itself.
+		// If we apply the same swap logic as for items that are not neighbours,
+		// then the current successor of item1 would become the successor of item2.
+		// In this case, item2 would become its own successor, creating a cycle
+		// which will lead to a linked list with infinite elements.
 
 		if (item1 == item2)
 			return;

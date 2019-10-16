@@ -1,23 +1,27 @@
-Operationen in O(1) ohne dass viel öffentlich ist und zersört werden kann
-Struktur nicht zerstörbar
+# Aufgabenstellung
 
-* Bei ListItem m_next / m_prev nicht dem Benutzer zur Verfügung stellen
-* 2 Listen zusammenfügen soll effizient möglich sein, ohne alles umkopieren
-* direkt Zugriff Anfang/Ende (Lesen/Schreiben/Einfügen/Löschen) => O(1)
+Im Selbststudium zu Algorithmen und Datenstrukturen 2 (ALGD2) soll eine LinkedList Implementation erstellt werden, die vom Design der LinkedList im Java Collections Framework abweicht.
+Die genaue Aufgabenstellung ist im Dokument `Uebung3.pdf` beschrieben (liegt im selben Verzeichnis wie dieses README).
+
+Zusammenfassung der Aufgabenstellung:
+
+Wichtige Operationen in O(1) ohne dass viel öffentlich ist und zerstört werden kann.
+* Struktur nicht zerstörbar.
+* Bei ListItem m_next / m_prev nicht dem Benutzer zur Verfügung stellen.
+* Zwei Listen zusammenfügen soll effizient möglich sein, ohne alles umkopieren.
+* Direkt Zugriff Anfang/Ende (Lesen/Schreiben/Einfügen/Löschen) => O(1).
 * Einfügen/Löschen innerhalb der Liste => O(1), falls ListItem bekannt.
-* Suchen: => O(n)
+* Suchen: => O(n).
 
+Bewertungskriterien: Design, Lesbarkeit, Effizienz, Sicherheit.
 
-Bewertungskriterien: Design, Lesbarkeit, Effizienz, Sicherheit
+# Contributors
 
-# Concept
+* Samuel Keusch
+* Marco Waldmeier
+* Mike Nöthiger
 
-The provided LinkedList implementation was designed to be efficient as possible, therefore some features might be minimized (e.g. only LinkedLists are allowed as input list) and security was neglected sometimes. 
-
-# Security
-A ListItem is guaranteed to be only member of one DLinkedList instance. This is acquired via the m_owner member. Each method in DLinkedList which accepts a ListItem therefore checks if m_owner == this. If this is not the case, the requested operation is denied.
-
-# Answers
+# Antworten zum Aufgabenblatt
 
 **Welches sind die Vor- und Nachteile der LinkedList gegenuüber der ArrayList bezüglich dem Einfügen und Löschen an beliebiger Stelle?**
 
@@ -29,3 +33,10 @@ Nachteile LinkedList:
 * Grösserer Verwaltungsaufwand, also mehr Speicherbedarf pro Element.
 * Löschen und Einfügen an beliebiger Stelle in O(n) wenn man das Daten Objekt, nicht aber das Element kennt.
 
+# Efficiency
+
+The provided LinkedList implementation was designed to be efficient as possible, therefore some features might be minimized (e.g. only LinkedLists are allowed as input list). 
+
+# Security
+
+A ListItem is guaranteed to be only member of one DLinkedList instance. This is acquired via the m_owner member. Each method in DLinkedList which accepts a ListItem therefore checks if m_owner == this. If this is not the case, the requested operation is denied.
