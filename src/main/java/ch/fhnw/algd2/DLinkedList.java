@@ -151,6 +151,8 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public ListItem cyclicDelete(ListItem item, boolean next) {
+		assert item != null;
+		checkMembershipPrecondition(item);
 		ListItem nextOrPrevious = delete(item, next);
 		if (nextOrPrevious == null) {
 			return next ? m_head : m_tail;
@@ -248,6 +250,8 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 	@Override
 	public void swap(ListItem item1, ListItem item2) {
 		assert item1 != null && item2 != null;
+		checkMembershipPrecondition(item1);
+		checkMembershipPrecondition(item2);
 		// Edge Cases:
 		// * item1 = item2 (nothing to rewire)
 		// * item2 is left neighbour of item1 (6 rewires)
@@ -264,9 +268,6 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 		// Consider the following linked list:
 		// item0 <> item1 <> item2 <> item3
 		// If the succ of item1 becomes the succ of item2, item2 would link to itself.
-
-		checkMembershipPrecondition(item1);
-		checkMembershipPrecondition(item2);
 
 		if (item1 == item2)
 			return;
@@ -330,7 +331,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 			current.m_previous = tmp;
 			current = tmp;
 		}
-		ListItem oldTail = tail();
+		ListItem oldTail = m_tail;
 		m_tail = m_head;
 		m_head = oldTail;
 	}
@@ -460,6 +461,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 	@Override
 	public void conc(List<T> list, boolean after) {
+		assert list != null && list != this;
 		if (after) {
 			addAfter(m_tail, list);
 		} else {
@@ -474,7 +476,6 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 
 		DLinkedList<T> removedElements = new DLinkedList<T>();
 		ListItem current = startInclusive;
-
 		do {
 			ListItem newOne = cyclicNext(current);
 			unlink(current);
@@ -720,13 +721,7 @@ public class DLinkedList<T> extends AbstractList<T> implements IList<T> {
 		@Override
 		public int previousIndex() {
 			checkModCount();
-			if (m_next == null) {
-				return DLinkedList.this.m_size - 1;
-			} else if (m_next.m_previous == null) {
-				return -1; // according to the spec
-			} else {
-				return m_index - 1;
-			}
+			return m_index - 1;
 		}
 
 		@Override
